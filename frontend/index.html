@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FoodApp Frontend</title>
+</head>
+<body>
+    <h1>🍔 Welcome to FoodApp</h1>
+    <button onclick="getMenu()">Get Menu</button>
+    <button onclick="createOrder()">Place Order</button>
+    <button onclick="getDeliveryStatus()">Check Delivery</button>
+    <pre id="output"></pre>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function getMenu() {
+            fetch('http://localhost:8081/restaurant/menu')
+                .then(res => res.json())
+                .then(data => output.textContent = 'Menu: ' + JSON.stringify(data));
+        }
+
+        function createOrder() {
+            fetch('http://localhost:8082/order/create?item=Pizza', { method: 'POST' })
+                .then(res => res.text())
+                .then(data => output.textContent = data);
+        }
+
+        function getDeliveryStatus() {
+            fetch('http://localhost:8083/delivery/status/1')
+                .then(res => res.text())
+                .then(data => output.textContent = data);
+        }
+    </script>
+</body>
+</html>
