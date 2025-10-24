@@ -12,9 +12,23 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Backend Services') {
             steps {
-                sh "${MAVEN_HOME}/bin/mvn clean package"
+                sh """
+                # Build all backend services
+                ${MAVEN_HOME}/bin/mvn -f restaurant-service/pom.xml clean package
+                ${MAVEN_HOME}/bin/mvn -f order-service/pom.xml clean package
+                ${MAVEN_HOME}/bin/mvn -f delivery-service/pom.xml clean package
+                """
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                sh """
+                # If using plain HTML, no build needed
+                echo "Frontend is plain HTML, just serve it"
+                """
             }
         }
 
@@ -23,19 +37,33 @@ pipeline {
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
+
+        stage('Start Services') {
+            steps {
+                sh """
+                # Start backend services
+                nohup java -jar restaurant-service/target/restaurant-service-1.0-SNAPSHOT.jar > restaurant.log 2>&1 &
+                nohup java -jar order-service/target/order-service-1.0-SNAPSHOT.jar > order.log 2>&1 &
+                nohup java -jar delivery-service/target/delivery-service-1.0-SNAPSHOT.jar > delivery.log 2>&1 &
+
+                # Serve frontend at port 5000
+                nohup python3 -m http.server 5000 --directory frontend > frontend.log 2>&1 &
+                """
+            }
+        }
     }
 
     post {
         success {
             mail to: 'nigheydhanakumar@gmail.com',
                  subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                 body: "Build was successful.\nCheck Jenkins: ${env.BUILD_URL}"
+                 body: "Build and deployment were successful.\nAccess UI: http://${env.BUILD_URL.split('/job')[0]}:5000/"
         }
 
         failure {
             mail to: 'nigheydhanakumar@gmail.com',
                  subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                 body: "Build failed.\nCheck Jenkins: ${env.BUILD_URL}"
+                 body: "Build or deployment failed.\nCheck Jenkins: ${env.BUILD_URL}"
         }
     }
 }
