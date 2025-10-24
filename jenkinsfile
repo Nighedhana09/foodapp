@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    environment {
+        MAVEN_HOME = tool 'M3'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Nighedhana09/foodapp.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "${MAVEN_HOME}/bin/mvn clean package"
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            mail to: 'nigheydhanakumar@gmail.com',
+                 subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                 body: "Build was successful.\nCheck Jenkins: ${env.BUILD_URL}"
+        }
+
+        failure {
+            mail to: 'nigheydhanakumar@gmail.com',
+                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                 body: "Build failed.\nCheck Jenkins: ${env.BUILD_URL}"
+        }
+    }
+}
