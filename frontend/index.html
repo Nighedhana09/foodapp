@@ -15,19 +15,19 @@
         const output = document.getElementById('output');
 
         function getMenu() {
-            fetch('http://54.226.150.120:8081/restaurant/menu')
+            fetch('http://http://54.235.231.101:8081/restaurant/menu')
                 .then(res => res.json())
                 .then(data => output.textContent = 'Menu: ' + JSON.stringify(data));
         }
 
         function createOrder() {
-            fetch('http://54.226.150.120:8082/order/create?item=Pizza', { method: 'POST' })
+            fetch('http://54.235.231.101:8082/order/create?item=Pizza', { method: 'POST' })
                 .then(res => res.text())
                 .then(data => output.textContent = data);
         }
 
         function getDeliveryStatus() {
-            fetch('http://54.226.150.120:8083/delivery/status/1')
+            fetch('http:/54.235.231.101:8083/delivery/status/1')
                 .then(res => res.text())
                 .then(data => output.textContent = data);
         }
