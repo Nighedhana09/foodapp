@@ -15,21 +15,24 @@
         const output = document.getElementById('output');
 
         function getMenu() {
-            fetch('http://http://54.235.231.101:8081/restaurant/menu')
+            fetch('http://54.235.231.101:8081/restaurant/menu')
                 .then(res => res.json())
-                .then(data => output.textContent = 'Menu: ' + JSON.stringify(data));
+                .then(data => output.textContent = 'Menu: ' + JSON.stringify(data))
+                .catch(err => output.textContent = 'Error: ' + err);
         }
 
         function createOrder() {
             fetch('http://54.235.231.101:8082/order/create?item=Pizza', { method: 'POST' })
                 .then(res => res.text())
-                .then(data => output.textContent = data);
+                .then(data => output.textContent = data)
+                .catch(err => output.textContent = 'Error: ' + err);
         }
 
         function getDeliveryStatus() {
-            fetch('http:/54.235.231.101:8083/delivery/status/1')
+            fetch('http://54.235.231.101:8083/delivery/status/1')
                 .then(res => res.text())
-                .then(data => output.textContent = data);
+                .then(data => output.textContent = data)
+                .catch(err => output.textContent = 'Error: ' + err);
         }
     </script>
 </body>
