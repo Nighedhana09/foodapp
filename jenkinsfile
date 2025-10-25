@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         MAVEN_HOME = tool 'M3'
+        FRONTEND_DIR = '/var/www/foodapp' // Nginx root for frontend
     }
 
     stages {
@@ -23,11 +24,21 @@ pipeline {
             }
         }
 
-        stage('Build Frontend') {
+        stage('Deploy Frontend to Nginx') {
             steps {
                 sh """
-                # If using plain HTML, no build needed
-                echo "Frontend is plain HTML, just serve it"
+                # Create Nginx folder if not exists
+                sudo mkdir -p ${FRONTEND_DIR}
+
+                # Copy frontend files
+                sudo cp -r frontend/* ${FRONTEND_DIR}/
+
+                # Set permissions
+                sudo chown -R www-data:www-data ${FRONTEND_DIR}
+                sudo chmod -R 755 ${FRONTEND_DIR}
+
+                # Reload Nginx to apply changes
+                sudo systemctl reload nginx
                 """
             }
         }
@@ -38,16 +49,18 @@ pipeline {
             }
         }
 
-        stage('Start Services') {
+        stage('Start Backend Services') {
             steps {
                 sh """
+                # Kill old processes if any
+                sudo pkill -f restaurant-service || true
+                sudo pkill -f order-service || true
+                sudo pkill -f delivery-service || true
+
                 # Start backend services
                 sudo nohup java -jar restaurant-service/target/restaurant-service-1.0-SNAPSHOT.jar > restaurant.log 2>&1 &
                 sudo nohup java -jar order-service/target/order-service-1.0-SNAPSHOT.jar > order.log 2>&1 &
                 sudo nohup java -jar delivery-service/target/delivery-service-1.0-SNAPSHOT.jar > delivery.log 2>&1 &
-
-                # Serve frontend at port 5000
-                sudo nohup python3 -m http.server 5000 --directory frontend > frontend.log 2>&1 &
                 """
             }
         }
@@ -57,7 +70,7 @@ pipeline {
         success {
             mail to: 'nigheydhanakumar@gmail.com',
                  subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                 body: "Build and deployment were successful.\nAccess UI: http://${env.BUILD_URL.split('/job')[0]}:5000/"
+                 body: "Build and deployment were successful.\nAccess UI: http://<YOUR_SERVER_IP>/"
         }
 
         failure {
@@ -67,3 +80,5 @@ pipeline {
         }
     }
 }
+
+#jenkins
