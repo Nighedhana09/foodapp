@@ -42,12 +42,12 @@ pipeline {
             steps {
                 sh """
                 # Start backend services
-                nohup java -jar restaurant-service/target/restaurant-service-1.0-SNAPSHOT.jar > restaurant.log 2>&1 &
-                nohup java -jar order-service/target/order-service-1.0-SNAPSHOT.jar > order.log 2>&1 &
-                nohup java -jar delivery-service/target/delivery-service-1.0-SNAPSHOT.jar > delivery.log 2>&1 &
+                sudo nohup java -jar restaurant-service/target/restaurant-service-1.0-SNAPSHOT.jar > restaurant.log 2>&1 &
+                sudo nohup java -jar order-service/target/order-service-1.0-SNAPSHOT.jar > order.log 2>&1 &
+                sudo nohup java -jar delivery-service/target/delivery-service-1.0-SNAPSHOT.jar > delivery.log 2>&1 &
 
                 # Serve frontend at port 5000
-                nohup python3 -m http.server 5000 --directory frontend > frontend.log 2>&1 &
+                sudo nohup python3 -m http.server 5000 --directory frontend > frontend.log 2>&1 &
                 """
             }
         }
