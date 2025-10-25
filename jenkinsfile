@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         MAVEN_HOME = tool 'M3'
-        FRONTEND_DIR = '/usr/share/nginx/html' // Nginx root for frontend
+        FRONTEND_DIR = '/var/www/foodapp' // Nginx root for frontend
     }
 
     stages {
